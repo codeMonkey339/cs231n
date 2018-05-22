@@ -90,11 +90,10 @@ class KNearestNeighbor(object):
     dists = np.zeros((num_test, num_train))
     for i in range(num_test):
       #######################################################################
-      # TODO:                                                               #
       # Compute the l2 distance between the ith test point and all training #
       # points, and store the result in dists[i, :].                        #
       #######################################################################
-        dists[i] = np.sum(np.power(np.subtract(self.X_train - X[i, :],2),axis=1))
+        dists[i,:] = np.sum(np.subtract(X[i,:], self.X_train) ** 2, axis = 1).T
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -157,19 +156,17 @@ class KNearestNeighbor(object):
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
       sorted_indices = np.argsort(dists[i, :])
-      #k_indices = np.where(sorted_indices < k)
-      #if sorted_indices[k_indices] != 0:
-        #print(sorted_indices[k_indices])
+      k_indices = sorted_indices[0:k]
       #########################################################################
       # Now that you have found the labels of the k nearest neighbors, you    #
       # need to find the most common label in the list closest_y of labels.   #
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-      #labels = self.y_train[k_indices]
-      #counter = collections.Counter(labels)
-      #most_freq = counter.most_common(1)
-      y_pred[i] = self.y_train[np.where(sorted_indices == 0)[0]]
+      labels = self.y_train[k_indices]
+      counter = collections.Counter(labels)
+      most_freq = counter.most_common(1)
+      y_pred[i] = most_freq[0][0]
       #########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
