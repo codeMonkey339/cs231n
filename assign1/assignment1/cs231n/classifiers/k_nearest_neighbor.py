@@ -1,4 +1,5 @@
 import numpy as np
+import collections
 
 class KNearestNeighbor(object):
   """ a kNN classifier with L2 distance """
@@ -71,7 +72,7 @@ class KNearestNeighbor(object):
         # training point, and store the result in dists[i, j]. You should   #
         # not use a loop over dimension.                                    #
         #####################################################################
-        dists[i,j] = np.sum(np.power(np.subtract(self.X_train[j,:] - X[i,:]),2),axis=1)
+        dists[i,j] = np.sum(np.subtract(self.X_train[j,:],X[i,:]) ** 2)
         #####################################################################
         #                       END OF YOUR CODE                            #
         #####################################################################
@@ -93,7 +94,7 @@ class KNearestNeighbor(object):
       # Compute the l2 distance between the ith test point and all training #
       # points, and store the result in dists[i, :].                        #
       #######################################################################
-        dists[i] = np.sum(np.power(np.subtract(self.X_train - X[i, :],2),axis=1)
+        dists[i] = np.sum(np.power(np.subtract(self.X_train - X[i, :],2),axis=1))
       #######################################################################
       #                         END OF YOUR CODE                            #
       #######################################################################
@@ -150,24 +151,25 @@ class KNearestNeighbor(object):
       # the ith test point.
       closest_y = []
       #########################################################################
-      # TODO:                                                                 #
       # Use the distance matrix to find the k nearest neighbors of the ith    #
       # testing point, and use self.y_train to find the labels of these       #
       # neighbors. Store these labels in closest_y.                           #
       # Hint: Look up the function numpy.argsort.                             #
       #########################################################################
-      sorted_indices = np.argsort(dists[i, :],1)
-      sorted_indices = sorted_indices[sorted_indices < k]
+      sorted_indices = np.argsort(dists[i, :])
+      #k_indices = np.where(sorted_indices < k)
+      #if sorted_indices[k_indices] != 0:
+        #print(sorted_indices[k_indices])
       #########################################################################
-      # TODO:                                                                 #
       # Now that you have found the labels of the k nearest neighbors, you    #
       # need to find the most common label in the list closest_y of labels.   #
       # Store this label in y_pred[i]. Break ties by choosing the smaller     #
       # label.                                                                #
       #########################################################################
-      labels = self.y_train(sorted_indices)
-      (values, counts) = np.bincount(labels)
-      y_pred[i] = values(np.argmax(counts))
+      #labels = self.y_train[k_indices]
+      #counter = collections.Counter(labels)
+      #most_freq = counter.most_common(1)
+      y_pred[i] = self.y_train[np.where(sorted_indices == 0)[0]]
       #########################################################################
       #                           END OF YOUR CODE                            # 
       #########################################################################
