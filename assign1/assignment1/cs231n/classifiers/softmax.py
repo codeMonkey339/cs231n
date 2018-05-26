@@ -24,7 +24,6 @@ def softmax_loss_naive(W, X, y, reg):
   dW = np.zeros_like(W)
 
   #############################################################################
-  # TODO: Compute the softmax loss and its gradient using explicit loops.     #
   # Store the loss in loss and the gradient in dW. If you are not careful     #
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
@@ -35,11 +34,20 @@ def softmax_loss_naive(W, X, y, reg):
     scores -= np.max(scores)
     correct_score = scores[y[i]]
     loss -= np.log(np.exp(correct_score)/ np.sum(np.exp(scores)))
+    scores_exp_sum = np.sum(np.exp(scores))
+    for j in range(W.shape[1]):
+      if j == y[i]:
+        dW[:, y[i]] += -1 *(scores_exp_sum - np.exp(scores[y[i]]))/ scores_exp_sum * np.transpose(X[i, :])
+      else:
+        dW[:, j] += np.exp(scores[j]) / scores_exp_sum * np.transpose(X[i, :])
+
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
   loss /= N
   loss += reg * np.sum(W * W)
+  dW /= N
+  dW += 2 * reg * W
   return loss, dW
 
 
@@ -54,12 +62,23 @@ def softmax_loss_vectorized(W, X, y, reg):
   dW = np.zeros_like(W)
 
   #############################################################################
-  # TODO: Compute the softmax loss and its gradient using no explicit loops.  #
   # Store the loss in loss and the gradient in dW. If you are not careful     #
   # here, it is easy to run into numeric instability. Don't forget the        #
   # regularization!                                                           #
   #############################################################################
-  pass
+  N = X.shape[0]
+  scores = np.dot(X, W)
+  scores -= np.reshape(np.max(scores, axis = 1), (X.shape[0], -1))
+  correct_scores = scores[range(N), y]
+  scores_exp_axis = np.sum(np.exp(scores), axis = 1)
+  dW_weight_axis = np.exp(scores) / np.reshape(scores_exp_axis, (scores_exp_axis.shape[0], -1))
+  dW_weight_axis[range(N), y] = dW_weight_axis[range(N), y] - 1
+  dW = np.transpose(X).dot(dW_weight_axis)
+  dW /= N
+  loss -= np.sum(np.log(np.exp(correct_scores) / scores_exp_axis))
+  loss /= N
+  loss += reg * np.sum(W * W)
+  dW += 2 * reg * W
   #############################################################################
   #                          END OF YOUR CODE                                 #
   #############################################################################
