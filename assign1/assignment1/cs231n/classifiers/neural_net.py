@@ -76,8 +76,8 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    layer1_scores = np.maximum(X.dot(W1), 0)
-    scores = layer1_scores.dot(W2) + b2
+    z1 = np.maximum(X.dot(W1), 0)
+    scores = z1.dot(W2) + b2
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -95,9 +95,8 @@ class TwoLayerNet(object):
     # classifier loss.                                                          #
     #############################################################################
     scores_max_axis = np.reshape(np.max(scores, axis = 1), (scores.shape[0], -1))
-    scores_shifted = scores - scores_max_axis
-    scores_shifted_exp = np.exp(scores_shifted)
-    scores_sum_axis = np.sum(scores_shifted_exp, 1)
+    scores_shifted_exp = np.exp(scores - scores_max_axis)
+    scores_sum_axis = scores_shifted_exp.sum(axis = 1, keepdims = True)
     correct_scores = scores_shifted_exp[range(len(y)), y]
     loss -= np.sum(np.log(correct_scores/ scores_sum_axis))
     loss /= N
@@ -113,14 +112,21 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    softmax_scores = scores_shifted_axis/ np.reshape(scores_sum_axis, (len(scores_sum_axis, -1))
-    softmax_scores[range(N), y] = softmax_scores[range(N), y] - 1
-    dW2 = np.transpose(layer1_scores).dot(softmax_scores)
+    softmax_loss = scores_shifted_exp/ scores_sum_axis
+    softmax_loss[range(N), y] = softmax_loss[range(N), y] - 1
+    dW2 = np.transpose(z1).dot(softmax_loss)
     dW2 /= N                                          
     dW2 += 2 * reg * W2
-    db2 = np.sum(softmax_scores, axis = 0)                                          
+    db2 = np.sum(softmax_loss, axis = 0)                                          
     grads['W2'] = dW2
-    grads['b2'] = db2                                          
+    grads['b2'] = db2    
+    dW1 = X.T.dot(dW2)
+    dW1 = dW1[z1 > 0] # filtering by the relu layer
+    dW1 /= N
+    dW1 += 2 * reg * W1
+    db1 = dW1[z1 > 0].sum()
+    grads['W1'] = dW1
+    grads['b1'] = db1
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
