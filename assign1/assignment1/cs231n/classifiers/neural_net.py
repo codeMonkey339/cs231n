@@ -76,12 +76,12 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    layer1_scores = np.maximum(X.dot(W1), 0)
-    scores = layer1_scores.dot(W2) + b2
+    z1 = np.maximum(X.dot(W1) + b1, 0)
+    scores = z1.dot(W2) + b2
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
-    
+
     # If the targets are not given then jump out, we're done
     if y is None:
       return scores
@@ -94,14 +94,14 @@ class TwoLayerNet(object):
     # in the variable loss, which should be a scalar. Use the Softmax           #
     # classifier loss.                                                          #
     #############################################################################
-    scores_max_axis = np.reshape(np.max(scores, axis = 1), (scores.shape[0], -1))
-    scores_shifted = scores - scores_max_axis
-    scores_shifted_exp = np.exp(scores_shifted)
-    scores_sum_axis = np.sum(scores_shifted_exp, 1)
-    correct_scores = scores_shifted_exp[range(len(y)), y]
-    loss -= np.sum(np.log(correct_scores/ scores_sum_axis))
+    scores -= np.max(scores, axis=1, keepdims=True)
+    scores_exp = np.exp(scores)
+    scores_sum_axis = np.sum(scores_exp, axis=1, keepdims=True)
+    correct_scores = np.reshape(scores_exp[range(len(y)), y], (len(y), -1))
+    loss -= np.sum(np.log(correct_scores/scores_sum_axis))
     loss /= N
     loss += reg * np.sum(W1 * W1) + reg * np.sum(W2 * W2)
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
@@ -113,14 +113,16 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    softmax_scores = scores_shifted_axis/ np.reshape(scores_sum_axis, (len(scores_sum_axis, -1))
-    softmax_scores[range(N), y] = softmax_scores[range(N), y] - 1
-    dW2 = np.transpose(layer1_scores).dot(softmax_scores)
-    dW2 /= N                                          
-    dW2 += 2 * reg * W2
-    db2 = np.sum(softmax_scores, axis = 0)                                          
+    dscore = scores_exp/scores_sum_axis
+    dscore[range(N), y] -= 1
+    dW2 = z1.T.dot(dscore) / N + 2 * reg * W2
+    db2 = np.sum(dscore, axis=0) / N
     grads['W2'] = dW2
-    grads['b2'] = db2                                          
+    grads['b2'] = db2
+    dz1 = dscore.dot(W2.T)
+    dz1[z1 <= 0] = 0
+    grads['W1'] = X.T.dot(dz1) / N + 2 * reg * W1
+    grads['b1'] = np.sum(dz1, axis=0) / N
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
