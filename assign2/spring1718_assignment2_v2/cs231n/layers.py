@@ -58,9 +58,13 @@ def affine_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the affine backward pass.                               #
     ###########################################################################
+    shape = x.shape
     x = np.reshape(x, (x.shape[0], -1))
     db = dout.sum(axis=0, keepdims=True)
-
+    dw = x.T.dot(dout)
+    dx = dout.dot(w.T)
+    dx = np.reshape(dx, shape)
+    x = np.reshape(x, shape)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -82,7 +86,7 @@ def relu_forward(x):
     ###########################################################################
     # TODO: Implement the ReLU forward pass.                                  #
     ###########################################################################
-    pass
+    out = np.maximum(x, 0)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -105,7 +109,8 @@ def relu_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the ReLU backward pass.                                 #
     ###########################################################################
-    pass
+    dx = dout
+    dx[x <= 0] = 0
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -131,7 +136,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     Note that the batch normalization paper suggests a different test-time
     behavior: they compute sample mean and variance for each feature using a
     large number of training images rather than using a running average. For
-    this implementation we have chosen to use running averages instead since
+    his implementation we have chosen to use running averages instead since
     they do not require an additional estimation step; the torch7
     implementation of batch normalization also uses running averages.
 
