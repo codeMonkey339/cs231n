@@ -105,16 +105,20 @@ class TwoLayerNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         old_h1, old_W2, old_b2 = cache_score
-        loss, dscores = svm_loss(scores, y)
+        loss, dscores = softmax_loss(scores, y)
         dh1, dW2, db2 = affine_backward(dscores, cache_score)
-        dW2 += self.reg * np.sum(old_W2 * old_W2)
-        grads['dW2'] = dW2
-        grads['db2'] = db2
-        old_X, old_W1, old_b1 = cache_h1
+        dW2 += self.reg * old_W2
+        grads['W2'] = dW2
+        grads['b2'] = db2
+        fc_cache, relu_cache = cache_h1
+        old_x1, old_W1, old_b1 = fc_cache
         dX, dW1, db1 = affine_relu_backward(dh1, cache_h1)
-        dW1 += self.reg * np.sum(old_W1 * old_W1)
-        grads['dW1'] = dW1
-        grads['db1'] = db1
+        dW1 += self.reg * old_W1
+        grads['W1'] = dW1
+        grads['b1'] = db1
+        loss += 0.5 * self.reg * np.sum(old_W2 * old_W2) + 0.5 * self.reg \
+                * np.sum(old_W1 * old_W1)
+        X = np.reshape(X, shape)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
