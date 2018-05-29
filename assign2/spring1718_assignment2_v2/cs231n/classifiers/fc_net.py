@@ -185,7 +185,18 @@ class FullyConnectedNet(object):
         # beta2, etc. Scale parameters should be initialized to ones and shift     #
         # parameters should be initialized to zeros.                               #
         ############################################################################
-        pass
+        for i in range(self.num_layers):
+            if i == 0:
+                self.params['W' + str(i+1)] = weight_scale * np.random.randn(input_dim, hidden_dims[i])
+                self.params['b' + str(i+1)] = np.zeros(hidden_dims[i])
+            elif i == (self.num_layers - 1):
+                self.params['b' + str(i+1)] = np.zeros(num_classes)
+                self.params['W' + str(i+1)] = weight_scale * np.random.randn(hidden_dims[i-1], num_classes)
+            else:
+                self.params['b' + str(i+1)] = np.zeros(hidden_dims[i])
+                self.params['W' + str(i+1)] = weight_scale * np.random.randn(hidden_dims[i-1], hidden_dims[i])
+                    
+                
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -223,7 +234,9 @@ class FullyConnectedNet(object):
         """
         X = X.astype(self.dtype)
         mode = 'test' if y is None else 'train'
-
+        shape = X.shape
+        N = shape[0]
+        X = np.reshape(X, (N,-1))
         # Set train/test mode for batchnorm params and dropout param since they
         # behave differently during training and testing.
         if self.use_dropout:
@@ -244,7 +257,20 @@ class FullyConnectedNet(object):
         # self.bn_params[1] to the forward pass for the second batch normalization #
         # layer, etc.                                                              #
         ############################################################################
-        pass
+        h_layers, caches = [None] * (self.num_layers+1), [None] *(self.num_layers+1)
+        N = X.shape[0]
+        X = np.reshape(X, (N, -1))
+        h_layers[0] = X
+        caches[0] = X # cached copy of the data at current layer
+        temp_loss = 0
+        for i in range(self.num_layers):
+            W, b = self.params['W' + str(i+1)], self.params['b' + str(i+1)]
+            temp_loss += self.reg * 0.5 * np.sum(W * W)
+            if i == (self.num_layers-1):
+                h_layers[i+1], caches[i+1] = affine_forward(h_layers[i], W, b)                    
+            else:
+                h_layers[i+1], caches[i+1] = affine_relu_forward(h_layers[i], W, b)
+        scores = h_layers[self.num_layers]
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -267,7 +293,26 @@ class FullyConnectedNet(object):
         # automated tests, make sure that your L2 regularization includes a factor #
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
-        pass
+        loss, dscores = softmax_loss(scores, y)
+        loss += temp_loss
+        dh = 0
+        for i in reversed(range(self.num_layers)):
+            if i == (self.num_layers - 1):
+                dh, dW, db = affine_backward(dscores, caches[i+1])
+                old_h, old_W, old_b = caches[i+1]
+                grads['b' + str(i+1)] = db
+                dW += self.reg * old_W
+                grads['W' + str(i+1)] = dW
+            else:
+                dX, dW, db = affine_relu_backward(dh, caches[i+1])
+                fc_cache, relu_cache = caches[i+1]
+                old_X, old_W, old_b = fc_cache              
+                dW += self.reg * old_W
+                grads['b' + str(i+1)] = db
+                grads['W' + str(i+1)] = dW
+                dh = dX # used for previous layer
+                
+        X = np.reshape(X, shape)
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
