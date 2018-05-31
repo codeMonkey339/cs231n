@@ -162,7 +162,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     N, D = x.shape
     running_mean = bn_param.get('running_mean', np.zeros(D, dtype=x.dtype))
     running_var = bn_param.get('running_var', np.zeros(D, dtype=x.dtype))
-    out, cache = None, None
+    out, cache = None, {}
     if mode == 'train':
         #######################################################################
         # TODO: Implement the training-time forward pass for batch norm.      #
@@ -187,11 +187,19 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         #######################################################################
         sample_mean = np.mean(x, axis=0)
         sample_variance = np.var(x, axis=0)
-        x = (x-sample_mean)/np.sqrt(sample_variance + eps)
-        out = x * beta + gamma
+        x_hat = (x-sample_mean)/np.sqrt(sample_variance + eps)
+        out = x_hat * beta + gamma
         # need to add cache variables
         running_mean = momentum * running_mean + (1-momentum) * sample_mean
         running_var = momentum * running_var + (1-momentum) * sample_variance
+        cache['mean'] = sample_mean
+        cache['var'] = sample_variance
+        cache['gamma'] = gamma
+        cache['beta'] = beta
+        cache['xhat'] = x_hat
+        cache['eps'] = eps
+        cache['M'] = N
+        cache['x'] = x
         #######################################################################
         #                           END OF YOUR CODE                          #
         #######################################################################
@@ -241,7 +249,14 @@ def batchnorm_backward(dout, cache):
     # Referencing the original paper (https://arxiv.org/abs/1502.03167)       #
     # might prove to be helpful.                                              #
     ###########################################################################
-    pass
+    dx_hat = dout * cache['gamma']
+    std_inv = (cache['var'] + cache['eps']) ** 0.5
+    x_wo_mean = cache['x'] - cache['mean']
+    dvar = np.sum(dx_hat * x_wo_mean * -0.5 * std_inv ** -3, axis=0)
+    dmean = np.sum(dx_hat * -1 * std_inv, axis=0) + dvar * np.sum(x_wo_mean, axis=0) * -2 / cache['M']
+    dx = dx_hat * 1/std_inv + dvar * 2 * x_wo_mean / cache['M'] + dmean / cache['M']
+    dgamma = np.sum(dout * cache['xhat'], axis=0)
+    dbeta = np.sum(dout, axis=0)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
