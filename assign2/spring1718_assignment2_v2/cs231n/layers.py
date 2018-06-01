@@ -249,15 +249,15 @@ def batchnorm_backward(dout, cache):
     # Referencing the original paper (https://arxiv.org/abs/1502.03167)       #
     # might prove to be helpful.                                              #
     ###########################################################################
-    dx_hat = dout * cache['gamma']
+    dgamma = np.sum(dout, axis=0)
+    dbeta = np.sum(dout * cache['xhat'], axis=0)
+    dx_hat = dout * cache['beta']
     std_inv = (cache['var'] + cache['eps']) ** 0.5
     x_wo_mean = cache['x'] - cache['mean']
     dvar = np.sum(dx_hat * x_wo_mean * -0.5 * std_inv ** -3, axis=0)
-    dmean = np.sum(dx_hat * -1 * std_inv, axis=0) + dvar * np.sum(x_wo_mean, axis=0) * -2 / cache['M']
+    dmean = np.sum(dx_hat * -1 / std_inv, axis=0) + dvar * np.sum(x_wo_mean, axis=0) * -2 / cache['M']
     dx = dx_hat * 1/std_inv + dvar * 2 * x_wo_mean / cache['M'] + dmean / cache['M']
-    dgamma = np.sum(dout * cache['xhat'], axis=0)
-    dbeta = np.sum(dout, axis=0)
-    ###########################################################################
+   ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
 
