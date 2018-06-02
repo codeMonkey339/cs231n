@@ -269,14 +269,17 @@ class FullyConnectedNet(object):
         temp_loss = 0
         for i in range(self.num_layers):
             W, b = self.params['W' + str(i+1)], self.params['b' + str(i+1)]
-            gamma, beta = self.bn_params[i], self.bn_params[i]
             temp_loss += self.reg * 0.5 * np.sum(W * W)
             if i == (self.num_layers-1):
                 h_layers[i+1], caches[i+1] = affine_forward(h_layers[i], W, b)
             else:
-                #h_layers[i+1], caches[i+1] = affine_relu_forward(h_layers[i], W, b)
-                bn_param = self.bn_params[i]
-                h_layers[i+1], caches[i+1] = affine_bn_relu_forward(h_layers[i], W, b, gamma, beta, bn_param)
+                if self.normalization=='batchnorm':
+                    gamma, beta = self.params['gamma' + str(i+1)], self.params['beta' + str(i+1)]
+                    bn_param = self.bn_params[i]
+                    h_layers[i+1], caches[i+1] = affine_bn_relu_forward(h_layers[i], W, b, gamma, beta, bn_param)
+                else:
+                    h_layers[i+1], caches[i+1] = affine_relu_forward(h_layers[i], W, b)
+
         scores = h_layers[self.num_layers]
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -311,23 +314,25 @@ class FullyConnectedNet(object):
                 dW += self.reg * old_W
                 grads['W' + str(i+1)] = dW
             else:
-                # dX, dW, db = affine_relu_backward(dh, caches[i+1])
-                # fc_cache, relu_cache = caches[i+1]
-                # old_X, old_W, old_b = fc_cache
-                # dW += self.reg * old_W
-                # grads['b' + str(i+1)] = db
-                # grads['W' + str(i+1)] = dW
-                # dh = dX # used for previous layer
-                dX, dW, db, dgamma, dbeta = affine_bn_relu_backward(dh, caches[i+1])
-                fc_cache, bn_cache, relu_cache = caches[i+1]
-                old_X, oldW, old_b = fc_cache
-                old_gamma, old_beta = bn_cache['gamma'], bn_cache['beta']
-                grads['W' + str(i+1)] = dW + self.reg * old_W
-                grads['b' + str(i+1)] = db
-                grads['gamma' + str(i+1)] = dgamma + old_gamma
-                grads['beta' + str(i+1)] = dbeta + old_beta
-                dh = dX
-                
+                if self.normalization=='batchnorm':
+                    dX, dW, db, dgamma, dbeta = affine_bn_relu_backward(dh, caches[i+1])
+                    fc_cache, bn_cache, relu_cache = caches[i+1]
+                    old_X, old_W, old_b = fc_cache
+                    grads['W' + str(i+1)] = dW + self.reg * old_W
+                    grads['b' + str(i+1)] = db
+                    grads['gamma' + str(i+1)] = dgamma
+                    grads['beta' + str(i+1)] = dbeta
+                    dh = dX
+                else:
+                    #first implementation without bn layer
+                    dX, dW, db = affine_relu_backward(dh, caches[i+1])
+                    fc_cache, relu_cache = caches[i+1]
+                    old_X, old_W, old_b = fc_cache
+                    dW += self.reg * old_W
+                    grads['b' + str(i+1)] = db
+                    grads['W' + str(i+1)] = dW
+                    dh = dX # used for previous layer
+
         X = np.reshape(X, shape)
         ############################################################################
         #                             END OF YOUR CODE                             #
@@ -365,6 +370,6 @@ def affine_bn_relu_backward(dout, cache):
     """
     fc_cache, bn_cache, relu_cache = cache
     da = relu_backward(dout, relu_cache)
-    db, dgamma, dbeta = batchnorm_backward(da, bn_cache)
-    dx, dw, db = affine_backward(db, fc_cache)
+    da, dgamma, dbeta = batchnorm_backward(da, bn_cache)
+    dx, dw, db = affine_backward(da, fc_cache)
     return dx, dw, db, dgamma, dbeta
