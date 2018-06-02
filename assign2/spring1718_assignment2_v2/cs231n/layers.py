@@ -338,8 +338,10 @@ def layernorm_forward(x, gamma, beta, ln_param):
     ###########################################################################
     # if want to re-use the code from batch normalization, use transpose data x
     x = x.T
-    sample_mean = np.mean(x, axis=0)
-    sample_variance = np.var(x, axis=0)
+    gamma = np.reshape(gamma, (gamma.shape[0],1))
+    beta = np.reshape(beta,(beta.shape[0],1))
+    sample_mean = np.mean(x, axis=0, keepdims=True)
+    sample_variance = np.var(x, axis=0, keepdims=True)
     x_hat = (x-sample_mean)/np.sqrt(sample_variance + eps)
     out = x_hat * gamma + beta
     cache['mean'] = sample_mean
@@ -381,14 +383,14 @@ def layernorm_backward(dout, cache):
     # still apply!                                                            #
     ###########################################################################
     dout = dout.T
-    dbeta = np.sum(dout, axis=0)
-    dgamma = np.sum(dout * cache['xhat'], axis=0)
+    dbeta = np.sum(dout, axis=1, keepdims=True)
+    dgamma = np.sum(dout * cache['xhat'], axis=1, keepdims=True)
     dx_hat = dout * cache['gamma']
     std_inv = (cache['var'] + cache['eps']) ** 0.5
     x_wo_mean = cache['x'] - cache['mean']
-    dvar = np.sum(dx_hat * x_wo_mean * -0.5 * std_inv ** -3, axis=0)
-    dmean = np.sum(dx_hat * -1 / std_inv, axis=0) + dvar * np.sum(x_wo_mean, axis=0) * -2 / cache['M']
-    dx = dx_hat * 1/std_inv + dvar * 2 * x_wo_mean / cache['M'] + dmean / cache['M']
+    dvar = np.sum(dx_hat * x_wo_mean * -0.5 * std_inv ** -3, axis=0,keepdims=True)
+    dmean = np.sum(dx_hat * -1 / std_inv, axis=0,keepdims=True) + dvar * np.sum(x_wo_mean, axis=0, keepdims=True) * -2 / x_wo_mean.shape[0]
+    dx = dx_hat * 1/std_inv + dvar * 2 * x_wo_mean / x_wo_mean.shape[0] + dmean / x_wo_mean.shape[0]
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
