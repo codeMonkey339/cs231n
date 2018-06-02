@@ -189,16 +189,18 @@ class FullyConnectedNet(object):
             if i == 0:
                 self.params['W' + str(i+1)] = weight_scale * np.random.randn(input_dim, hidden_dims[i])
                 self.params['b' + str(i+1)] = np.zeros(hidden_dims[i])
-                self.params['gamma' + str(i+1)] = np.ones(hidden_dims[i])
-                self.params['beta' + str(i+1)] = np.zeros(hidden_dims[i])
+                if self.normalization=='batchnorm':
+                    self.params['gamma' + str(i+1)] = np.ones(hidden_dims[i])
+                    self.params['beta' + str(i+1)] = np.zeros(hidden_dims[i])
             elif i == (self.num_layers - 1):
                 self.params['b' + str(i+1)] = np.zeros(num_classes)
                 self.params['W' + str(i+1)] = weight_scale * np.random.randn(hidden_dims[i-1], num_classes)
             else:
                 self.params['b' + str(i+1)] = np.zeros(hidden_dims[i])
                 self.params['W' + str(i+1)] = weight_scale * np.random.randn(hidden_dims[i-1], hidden_dims[i])
-                self.params['gamma' + str(i+1)] = np.ones(hidden_dims[i])
-                self.params['beta' + str(i+1)] = np.zeros(hidden_dims[i])
+                if self.normalization=='batchnorm':
+                    self.params['gamma' + str(i+1)] = np.ones(hidden_dims[i])
+                    self.params['beta' + str(i+1)] = np.zeros(hidden_dims[i])
                     
                 
         ############################################################################
