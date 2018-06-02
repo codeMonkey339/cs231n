@@ -189,7 +189,7 @@ class FullyConnectedNet(object):
             if i == 0:
                 self.params['W' + str(i+1)] = weight_scale * np.random.randn(input_dim, hidden_dims[i])
                 self.params['b' + str(i+1)] = np.zeros(hidden_dims[i])
-                if self.normalization=='batchnorm':
+                if self.normalization != None:
                     self.params['gamma' + str(i+1)] = np.ones(hidden_dims[i])
                     self.params['beta' + str(i+1)] = np.zeros(hidden_dims[i])
             elif i == (self.num_layers - 1):
@@ -198,7 +198,7 @@ class FullyConnectedNet(object):
             else:
                 self.params['b' + str(i+1)] = np.zeros(hidden_dims[i])
                 self.params['W' + str(i+1)] = weight_scale * np.random.randn(hidden_dims[i-1], hidden_dims[i])
-                if self.normalization=='batchnorm':
+                if self.normalization != None:
                     self.params['gamma' + str(i+1)] = np.ones(hidden_dims[i])
                     self.params['beta' + str(i+1)] = np.zeros(hidden_dims[i])
                     
@@ -279,6 +279,11 @@ class FullyConnectedNet(object):
                     gamma, beta = self.params['gamma' + str(i+1)], self.params['beta' + str(i+1)]
                     bn_param = self.bn_params[i]
                     h_layers[i+1], caches[i+1] = affine_bn_relu_forward(h_layers[i], W, b, gamma, beta, bn_param)
+                elif self.normalization=='layernorm':
+                    gamma, beta = self.params['gamma' + str(i+1)], self.params['beta' + str(i+1)]
+                    ln_param = self.bn_params[i]
+                    h_layers[i+1], caches[i+1] = affine_ln_relu_forward(h_layers[i], W, b, gamma, beta, ln_param)
+                    
                 else:
                     h_layers[i+1], caches[i+1] = affine_relu_forward(h_layers[i], W, b)
 
@@ -325,6 +330,15 @@ class FullyConnectedNet(object):
                     grads['gamma' + str(i+1)] = dgamma
                     grads['beta' + str(i+1)] = dbeta
                     dh = dX
+                elif self.normalization=='layernorm':
+                    dX, dW, db, dgamma, dbeta = affine_ln_relu_backward(dh, caches[i+1])
+                    fc_cache, ln_cache, relu_cache = caches[i+1]
+                    old_X, old_W, old_b = fc_cache
+                    grads['W' + str(i+1)] = dW + self.reg * old_W
+                    grads['b' + str(i+1)] = db
+                    grads['gamma' + str(i+1)] = dgamma
+                    grads['beta' + str(i+1)] = dbeta
+                    dh = dX                    
                 else:
                     #first implementation without bn layer
                     dX, dW, db = affine_relu_backward(dh, caches[i+1])
@@ -373,5 +387,33 @@ def affine_bn_relu_backward(dout, cache):
     fc_cache, bn_cache, relu_cache = cache
     da = relu_backward(dout, relu_cache)
     da, dgamma, dbeta = batchnorm_backward(da, bn_cache)
+    dx, dw, db = affine_backward(da, fc_cache)
+    return dx, dw, db, dgamma, dbeta
+
+
+def affine_ln_relu_forward(x, w, b, gamma, beta, ln_param):
+    """
+    Convenience layer that performs the affine-ln-relu layer operations
+    :param x: Input to the affine layer
+    :param w: weights of the affine layer
+    :param b: offset of the affine layer
+    :param gamma: gamma for bn
+    param beta: beta for bn
+    :param ln_param: parameters for the bn layer
+    """
+    a, fc_cache = affine_forward(x,w,b)
+    b, ln_cache = layernorm_forward(a, gamma, beta, ln_param)
+    out, relu_cache = relu_forward(b)
+    cache = (fc_cache, ln_cache, relu_cache)
+    return out, cache
+    
+
+def affine_ln_relu_backward(dout, cache):
+    """
+    Backward pass for the affine-ln-relu convenience layers
+    """
+    fc_cache, ln_cache, relu_cache = cache
+    da = relu_backward(dout, relu_cache)
+    da, dgamma, dbeta = layernorm_backward(da, ln_cache)
     dx, dw, db = affine_backward(da, fc_cache)
     return dx, dw, db, dgamma, dbeta

@@ -338,8 +338,8 @@ def layernorm_forward(x, gamma, beta, ln_param):
     ###########################################################################
     # if want to re-use the code from batch normalization, use transpose data x
     x = x.T
-    gamma = np.reshape(gamma, (gamma.shape[0],1))
-    beta = np.reshape(beta,(beta.shape[0],1))
+    gamma = np.reshape(gamma, (-1,1))
+    beta = np.reshape(beta, (-1,1))
     sample_mean = np.mean(x, axis=0, keepdims=True)
     sample_variance = np.var(x, axis=0, keepdims=True)
     x_hat = (x-sample_mean)/np.sqrt(sample_variance + eps)
