@@ -283,7 +283,8 @@ class FullyConnectedNet(object):
                     gamma, beta = self.params['gamma' + str(i+1)], self.params['beta' + str(i+1)]
                     ln_param = self.bn_params[i]
                     h_layers[i+1], caches[i+1] = affine_ln_relu_forward(h_layers[i], W, b, gamma, beta, ln_param)
-                    
+                elif self.use_dropout == True:
+                    h_layers[i+1], caches[i+1] = affine_relu_dropout_forward(h_layers[i], W, b, self.dropout_param)
                 else:
                     h_layers[i+1], caches[i+1] = affine_relu_forward(h_layers[i], W, b)
 
@@ -338,7 +339,15 @@ class FullyConnectedNet(object):
                     grads['b' + str(i+1)] = db
                     grads['gamma' + str(i+1)] = dgamma
                     grads['beta' + str(i+1)] = dbeta
-                    dh = dX                    
+                    dh = dX
+                elif self.use_dropout == True:
+                    dX, dW, db = affine_relu_dropout_backward(dh, caches[i+1])
+                    ar_cache, do_cache = caches[i+1]
+                    fc_cache, relu_cache = ar_cache
+                    old_X, old_W, old_b = fc_cache
+                    grads['b' + str(i+1)] = db
+                    grads['W' + str(i+1)] = dW + self.reg * old_W
+                    dh = dX                   
                 else:
                     #first implementation without bn layer
                     dX, dW, db = affine_relu_backward(dh, caches[i+1])
@@ -417,3 +426,22 @@ def affine_ln_relu_backward(dout, cache):
     da, dgamma, dbeta = layernorm_backward(da, ln_cache)
     dx, dw, db = affine_backward(da, fc_cache)
     return dx, dw, db, dgamma, dbeta
+
+
+def affine_relu_dropout_forward(x, w, b, dropout_param):
+    """
+    Convenience layer that performs the affine-relu-dropout layer operations
+    """
+    a, ar_cache = affine_relu_forward(x, w, b)
+    out, do_cache = dropout_forward(a, dropout_param)
+    cache = (ar_cache, do_cache)
+    return out, cache
+
+def affine_relu_dropout_backward(dout, cache):
+    """
+    Backward pass for the affine-relu-dropout convenience layers
+    """
+    ar_cache, do_cache = cache
+    da = dropout_backward(dout, do_cache)
+    dx, dw, db = affine_relu_backward(da, ar_cache)
+    return dx, dw, db
