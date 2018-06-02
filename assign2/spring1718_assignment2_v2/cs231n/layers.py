@@ -558,6 +558,22 @@ def conv_backward_naive(dout, cache):
     ###########################################################################
     # dout is of size (N, F, H', W')
     x, w, b , conv_param = cache
+    dx = np.zeros((x.shape)) # (N, C, H, W)
+    out_shape = dout.shape # (N, F, H', W')
+    x_shape = dx.shape
+    stride = conv_param['stride']
+    pad = conv_param['pad']
+    w_h = w.shape[2]
+    w_w = w.shape[3]
+    for i in range(out_shape[0]): # N
+        for j in range(out_shape[1]): # F
+            for m in range(x_shape[2]): # H
+                for n in range(x_shape[3]): # W
+                    # need to find all overlapping occurrences
+                    for r in xrange(0, w_h, stride):
+                        for s in xrange(0, w_w, stride):
+                            
+    
     
     ###########################################################################
     #                             END OF YOUR CODE                            #
