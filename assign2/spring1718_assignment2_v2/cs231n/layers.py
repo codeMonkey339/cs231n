@@ -324,7 +324,7 @@ def layernorm_forward(x, gamma, beta, ln_param):
     - out: of shape (N, D)
     - cache: A tuple of values needed in the backward pass
     """
-    out, cache = None, None
+    out, cache = None, {}
     eps = ln_param.get('eps', 1e-5)
     ###########################################################################
     # TODO: Implement the training-time forward pass for layer norm.          #
@@ -336,11 +336,24 @@ def layernorm_forward(x, gamma, beta, ln_param):
     # transformations you could perform, that would enable you to copy over   #
     # the batch norm code and leave it almost unchanged?                      #
     ###########################################################################
-    pass
+    # if want to re-use the code from batch normalization, use transpose data x
+    x = x.T
+    sample_mean = np.mean(x, axis=0)
+    sample_variance = np.var(x, axis=0)
+    x_hat = (x-sample_mean)/np.sqrt(sample_variance + eps)
+    out = x_hat * gamma + beta
+    cache['mean'] = sample_mean
+    cache['var'] = sample_variance
+    cache['gamma'] = gamma
+    cache['beta'] = beta
+    cache['xhat'] = x_hat
+    cache['eps'] = eps
+    cache['M'] = 1
+    cache['x'] = x
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
-    return out, cache
+    return out.T, cache
 
 
 def layernorm_backward(dout, cache):
@@ -367,11 +380,19 @@ def layernorm_backward(dout, cache):
     # implementation of batch normalization. The hints to the forward pass    #
     # still apply!                                                            #
     ###########################################################################
-    pass
+    dout = dout.T
+    dbeta = np.sum(dout, axis=0)
+    dgamma = np.sum(dout * cache['xhat'], axis=0)
+    dx_hat = dout * cache['gamma']
+    std_inv = (cache['var'] + cache['eps']) ** 0.5
+    x_wo_mean = cache['x'] - cache['mean']
+    dvar = np.sum(dx_hat * x_wo_mean * -0.5 * std_inv ** -3, axis=0)
+    dmean = np.sum(dx_hat * -1 / std_inv, axis=0) + dvar * np.sum(x_wo_mean, axis=0) * -2 / cache['M']
+    dx = dx_hat * 1/std_inv + dvar * 2 * x_wo_mean / cache['M'] + dmean / cache['M']
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
-    return dx, dgamma, dbeta
+    return dx.T, dgamma.T, dbeta.T
 
 
 def dropout_forward(x, dropout_param):
