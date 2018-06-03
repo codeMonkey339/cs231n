@@ -562,19 +562,27 @@ def conv_backward_naive(dout, cache):
     pad = conv_param['pad']
     hout = dout.shape[2]
     wout = dout.shape[3]
-    hi = x.shape[2]
-    wi = x.shape[3]
+    hi = x.shape[2] # height of the input data
+    wi = x.shape[3] # width of the input data
     hh = w.shape[2] # height of the filter
     ww = w.shape[3] # width of the filter
-    dw_padded = np.zeros((x.shape[0], x.shape[1], x.shape[2]+2*pad, x.shape[3]+2*pad))
+    dx_padded = np.zeros((x.shape[0], x.shape[1], x.shape[2]+2*pad, x.shape[3]+2*pad))
+    x_padded = np.pad(x, ((0,0),(0,0),(conv_param['pad'], conv_param['pad']),(conv_param['pad'], conv_param['pad'])),\
+    'constant', constant_values=(0,))
+    dw = np.zeros((dout.shape[1], x.shape[1], hh, ww))
+    db = np.zeros(dout.shape[1])
     for i in range(hout):
         for j in range(wout):
             for k in range(dout.shape[1]): # loop through k
-                data = dw_padded[:,:,i*stride:i*stride+hh,\
+                dw_region = dx_padded[:,:,i*stride:i*stride+hh,\
                        j*stride:j*stride+ww]
-                data += w[k,:,:,:] * np.reshape(dout[:,k,i,j],(dout.shape[0],1,1,1))
+                dw_region += w[k,:,:,:] * np.reshape(dout[:,k,i,j],(dout.shape[0],1,1,1))
+                x_region = x_padded[:,:,i*stride:i*stride+hh,\
+                       j*stride:j*stride+ww]
+                dw[k,:,:,:] += np.sum(x_region * np.reshape(dout[:,k,i,j],(dout.shape[0],1,1,1)), axis=0)
+                db[k] += np.sum(dout[:,k,i,j], axis=0)
 
-    dx = dw_padded[:,:, stride:-stride, stride:-stride]
+    dx = dx_padded[:,:, stride:-stride, stride:-stride]
 
     
     
