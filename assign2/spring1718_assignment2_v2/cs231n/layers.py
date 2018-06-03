@@ -582,7 +582,7 @@ def conv_backward_naive(dout, cache):
                 dw[k,:,:,:] += np.sum(x_region * np.reshape(dout[:,k,i,j],(dout.shape[0],1,1,1)), axis=0)
                 db[k] += np.sum(dout[:,k,i,j], axis=0)
 
-    dx = dx_padded[:,:, stride:-stride, stride:-stride]
+    dx = dx_padded[:,:, pad:-pad, pad:-pad]
 
     
     
