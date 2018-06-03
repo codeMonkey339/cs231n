@@ -557,22 +557,25 @@ def conv_backward_naive(dout, cache):
     # TODO: Implement the convolutional backward pass.                        #
     ###########################################################################
     # dout is of size (N, F, H', W')
-    x, w, b , conv_param = cache
-    dx = np.zeros((x.shape)) # (N, C, H, W)
-    out_shape = dout.shape # (N, F, H', W')
-    x_shape = dx.shape
+    x, w, b, conv_param = cache
     stride = conv_param['stride']
     pad = conv_param['pad']
-    w_h = w.shape[2]
-    w_w = w.shape[3]
-    for i in range(out_shape[0]): # N
-        for j in range(out_shape[1]): # F
-            for m in range(x_shape[2]): # H
-                for n in range(x_shape[3]): # W
-                    # need to find all overlapping occurrences
-                    for r in xrange(0, w_h, stride):
-                        for s in xrange(0, w_w, stride):
-                            
+    hout = dout.shape[2]
+    wout = dout.shape[3]
+    hi = x.shape[2]
+    wi = x.shape[3]
+    hh = w.shape[2] # height of the filter
+    ww = w.shape[3] # width of the filter
+    dw_padded = np.zeros((x.shape[0], x.shape[1], x.shape[2]+2*pad, x.shape[3]+2*pad))
+    for i in range(hout):
+        for j in range(wout):
+            for k in range(dout.shape[1]): # loop through k
+                data = dw_padded[:,:,i*stride:i*stride+hh,\
+                       j*stride:j*stride+ww]
+                data += w[k,:,:,:] * np.reshape(dout[:,k,i,j],(dout.shape[0],1,1,1))
+
+    dx = dw_padded[:,:, stride:-stride, stride:-stride]
+
     
     
     ###########################################################################
