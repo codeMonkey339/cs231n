@@ -615,7 +615,17 @@ def max_pool_forward_naive(x, pool_param):
     ###########################################################################
     # TODO: Implement the max-pooling forward pass                            #
     ###########################################################################
-    pass
+    pool_h = pool_param['pool_height']
+    pool_w = pool_param['pool_width']
+    stride = pool_param['stride']
+    h, w = x.shape[2], x.shape[3]
+    hout = 1 + (h - pool_h) // stride
+    wout = 1 + (w - pool_w) // stride
+    out = np.zeros((x.shape[0], x.shape[1], hout, wout))
+    for i in range(hout):
+        for j in range(wout):
+            x_region = x[:,:, i*stride:i*stride+pool_h, j*stride:j*stride+pool_w]
+            out[:,:,i,j] = np.amax(x_region, axis=(2,3))
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -628,17 +638,29 @@ def max_pool_backward_naive(dout, cache):
     A naive implementation of the backward pass for a max-pooling layer.
 
     Inputs:
-    - dout: Upstream derivatives
+    - dout: Upstream derivatives (N,C,H',W')
     - cache: A tuple of (x, pool_param) as in the forward pass.
 
     Returns:
     - dx: Gradient with respect to x
     """
-    dx = None
+    x, pool_param = cache
+    dx = np.zeros(x.shape)
     ###########################################################################
     # TODO: Implement the max-pooling backward pass                           #
     ###########################################################################
-    pass
+    pool_h = pool_param['pool_height']
+    pool_w = pool_param['pool_width']
+    stride = pool_param['stride']
+    h, w = x.shape[2], x.shape[3]
+    hout, wout = dout.shape[2], dout.shape[3]
+    for i in range(hout):
+        for j in range(wout):
+            # need to use some tricks to find the max efficiently
+            x_region = x[:,:, i*stride:i*stride+pool_h, j*stride:j*stride+pool_w]
+            dx_region = dx[:,:, i*stride:i*stride+pool_h, j*stride:j*stride+pool_w]
+            flags = np.max(x_region, axis=(2,3), keepdims=True) == x_region
+            dx_region += flags * np.reshape(dout[:,:,i,j],(dout.shape[0],dout.shape[1],1,1))
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
