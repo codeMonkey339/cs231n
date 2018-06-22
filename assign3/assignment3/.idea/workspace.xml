@@ -10,16 +10,15 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.60789305">
+    <splitter split-orientation="horizontal" split-proportion="0.28644174">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="rnn_layers.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/cs231n/rnn_layers.py">
+          <file leaf-file-name="rnn.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/cs231n/classifiers/rnn.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="220">
-                  <caret line="139" lean-forward="true" selection-start-line="139" selection-end-line="139" />
+                <state>
                   <folding>
-                    <element signature="e#0#47#0" expanded="true" />
+                    <element signature="e#0#26#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
@@ -28,8 +27,20 @@
         </leaf>
       </split-first>
       <split-second>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="rnn.py" pinned="false" current-in-tab="true">
+        <leaf>
+          <file leaf-file-name="rnn_layers.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/cs231n/rnn_layers.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="560">
+                  <caret line="218" column="75" selection-start-line="218" selection-start-column="75" selection-end-line="218" selection-end-column="75" />
+                  <folding>
+                    <element signature="e#0#47#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="rnn.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/cs231n/classifiers/rnn.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state>
@@ -70,31 +81,7 @@
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="assignment3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="assignment3" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="assignment3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="assignment3" type="462c0819:PsiDirectoryNode" />
-              <item name="cs231n" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="assignment3" type="b2602c69:ProjectViewProjectNode" />
-              <item name="assignment3" type="462c0819:PsiDirectoryNode" />
-              <item name="cs231n" type="462c0819:PsiDirectoryNode" />
-              <item name="classifiers" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -251,8 +238,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cs231n/rnn_layers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="139" lean-forward="true" selection-start-line="139" selection-end-line="139" />
+        <state relative-caret-position="560">
+          <caret line="218" column="75" selection-start-line="218" selection-start-column="75" selection-end-line="218" selection-end-column="75" />
           <folding>
             <element signature="e#0#47#0" expanded="true" />
           </folding>
