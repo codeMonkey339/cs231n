@@ -1,1 +1,6 @@
 **/**/datasets/cifar-10-batches-py
+**/**/datasets/coco_captioning
+**/**/datasets/imagenet_val_25.npz
+**/**/datasets/squeezenet.ckpt.data-00000-of-00001
+**/**/datasets/squeezenet.ckpt.index
+**/**/datasets/squeezenet.ckpt.meta

@@ -139,15 +139,16 @@ def rnn_backward(dh, cache):
     """
     N, T, H = dh.shape
     N, D = cache[0][0].shape
-    dx, dh0, dWx, dWh, db = np.zeros((N, T, D)), np.zeros((N, H)), np.zeros((D, H)), np.zeros((H, H)), np.zeros((H,))
+    dx, dprev_h, dWx, dWh, db = np.zeros((N, T, D)), np.zeros((N, H)), np.zeros((D, H)), \
+                            np.zeros((H, H)), np.zeros((H,))
     ##############################################################################
     # TODO: Implement the backward pass for a vanilla RNN running an entire      #
     # sequence of data. You should use the rnn_step_backward function that you   #
     # defined above. You can use a for loop to help compute the backward pass.   #
     ##############################################################################
-    dprev_h = np.zeros_like(dh0)
     for i in reversed(range(T)):
-        dx[:,i,:], drev_h, dWx_i, dWh_i, db_i = rnn_step_backward(dh[:,i,:] + dprev_h, cache[i])
+        dx[:,i,:], dprev_h, dWx_i, dWh_i, db_i = rnn_step_backward(dh[:,i,:] + dprev_h,
+                                                                  cache[i])
         dWx += dWx_i
         dWh += dWh_i
         db += db_i
