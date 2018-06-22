@@ -66,9 +66,11 @@ def rnn_step_backward(dnext_h, cache):
     # of the output value from tanh.                                             #
     ##############################################################################
     dtanh = dnext_h * (1 - next_h ** 2)
-    db = dtanh
+    db = np.sum(dtanh,axis=0)
     dWx = np.dot(np.transpose(x), dtanh)
     dx = np.dot(dtanh, np.transpose(Wx))
+    dprev_h = np.dot(dtanh, np.transpose(Wh))
+    dWh = np.dot(np.transpose(prev_h), dtanh)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
