@@ -262,7 +262,19 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
     # TODO: Implement the forward pass for a single timestep of an LSTM.        #
     # You may want to use the numerically stable sigmoid implementation above.  #
     #############################################################################
-    pass
+    N, H = prev_h.shape
+    activation = np.dot(x, Wx) + np.dot(prev_h, Wh) + b
+    ai = activation[:, :H]
+    af = activation[:, H:2*H]
+    ao = activation[:, 2*H:3*H]
+    ag = activation[:, 3*H:4*H]
+    i = sigmoid(ai)
+    f = sigmoid(af)
+    o = sigmoid(ao)
+    g = np.tanh(ag)
+    next_c = f * prev_c + i * g
+    next_h = o * np.tanh(next_c)
+    cache = (x,Wx,Wh,prev_h,prev_c,ai,af,ao,ag,i,f,o,g,next_c,next_h)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -288,13 +300,29 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     - db: Gradient of biases, of shape (4H,)
     """
     dx, dprev_h, dprev_c, dWx, dWh, db = None, None, None, None, None, None
+    x,Wx,Wh,prev_h,prev_c,ai,af,ao,ag,i,f,o,g,next_c,next_h = cache
     #############################################################################
     # TODO: Implement the backward pass for a single timestep of an LSTM.       #
     #                                                                           #
     # HINT: For sigmoid and tanh you can compute local derivatives in terms of  #
     # the output value from the nonlinearity.                                   #
     #############################################################################
-    pass
+    dnext_c += dnext_h * (1 - np.tanh(next_c) ** 2) / o
+    do = dnext_h*1.0 / np.tanh(next_c)
+    dao = do * sigmoid(ao) * (1 - sigmoid(ao))
+    df = dnext_c*1.0 / prev_c
+    dprev_c = dnext_c*1.0 / f
+    di = dprev_c*1.0 / g
+    dg = dprev_c*1.0 / f
+    dai = di * sigmoid(ai) * (1 - sigmoid(ai))
+    daf = df * sigmoid(af) * (1 - sigmoid(af))
+    dag = dg * (1 - np.tanh(ag) ** 2)
+    dactivation = np.hstack((dai, daf, dao, dag))
+    db = dactivation
+    dWx = np.dot(x.T, dactivation)
+    dx = np.dot(dactivation, Wx.T)
+    dprev_h = np.dot(dactivation, Wh.T)
+    dWh = np.dot(prev_h.T, dactivation)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
