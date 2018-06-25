@@ -54,7 +54,7 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="rnn.py" pinned="false" current-in-tab="true">
+          <file leaf-file-name="rnn.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/cs231n/classifiers/rnn.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="532">
@@ -62,6 +62,15 @@
                   <folding>
                     <element signature="e#0#26#0" expanded="true" />
                   </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="squeezenet.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/cs231n/classifiers/squeezenet.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="820">
+                  <caret line="110" lean-forward="true" selection-start-line="110" selection-end-line="110" />
                 </state>
               </provider>
             </entry>
@@ -297,6 +306,13 @@
           <folding>
             <element signature="e#0#26#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cs231n/classifiers/squeezenet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="820">
+          <caret line="110" lean-forward="true" selection-start-line="110" selection-end-line="110" />
         </state>
       </provider>
     </entry>
