@@ -274,7 +274,7 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
     g = np.tanh(ag)
     next_c = f * prev_c + i * g
     next_h = o * np.tanh(next_c)
-    cache = (x,Wx,Wh,prev_h,prev_c,ai,af,ao,ag,i,f,o,g,next_c,next_h)
+    cache = (x,Wx,Wh,b,prev_h,prev_c,i,f,o,g,next_c,next_h)
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -300,29 +300,31 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     - db: Gradient of biases, of shape (4H,)
     """
     dx, dprev_h, dprev_c, dWx, dWh, db = None, None, None, None, None, None
-    x,Wx,Wh,prev_h,prev_c,ai,af,ao,ag,i,f,o,g,next_c,next_h = cache
+    x,Wx,Wh,b,prev_h,prev_c,i,f,o,g,next_c,next_h = cache
     #############################################################################
     # TODO: Implement the backward pass for a single timestep of an LSTM.       #
     #                                                                           #
     # HINT: For sigmoid and tanh you can compute local derivatives in terms of  #
     # the output value from the nonlinearity.                                   #
     #############################################################################
-    dnext_c += dnext_h * (1 - np.tanh(next_c) ** 2) / o
-    do = dnext_h*1.0 / np.tanh(next_c)
-    dao = do * sigmoid(ao) * (1 - sigmoid(ao))
-    df = dnext_c*1.0 / prev_c
-    dprev_c = dnext_c*1.0 / f
-    di = dprev_c*1.0 / g
-    dg = dprev_c*1.0 / f
-    dai = di * sigmoid(ai) * (1 - sigmoid(ai))
-    daf = df * sigmoid(af) * (1 - sigmoid(af))
-    dag = dg * (1 - np.tanh(ag) ** 2)
+    dnext_c = dnext_c + dnext_h * (1 - np.square(np.tanh(next_c))) * o
+    do = dnext_h * np.tanh(next_c)
+    dao = do * o * (1 - o)
+    df = dnext_c * prev_c
+    dprev_c = dnext_c * f
+    di = dnext_c * g
+    dg = dnext_c * i
+    dai = di * i * (1 - i)
+    daf = df * f * (1 - f)
+    dag = dg * (1 - np.square(g))
     dactivation = np.hstack((dai, daf, dao, dag))
-    db = dactivation
+    #dactivation = np.concatenate((dai, daf, dao, dag), axis=1)
+    db = np.sum(dactivation, axis=0)
     dWx = np.dot(x.T, dactivation)
     dx = np.dot(dactivation, Wx.T)
     dprev_h = np.dot(dactivation, Wh.T)
     dWh = np.dot(prev_h.T, dactivation)
+
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
