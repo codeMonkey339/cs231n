@@ -318,7 +318,6 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     daf = df * f * (1 - f)
     dag = dg * (1 - np.square(g))
     dactivation = np.hstack((dai, daf, dao, dag))
-    #dactivation = np.concatenate((dai, daf, dao, dag), axis=1)
     db = np.sum(dactivation, axis=0)
     dWx = np.dot(x.T, dactivation)
     dx = np.dot(dactivation, Wx.T)
@@ -359,7 +358,17 @@ def lstm_forward(x, h0, Wx, Wh, b):
     # TODO: Implement the forward pass for an LSTM over an entire timeseries.   #
     # You should use the lstm_step_forward function that you just defined.      #
     #############################################################################
-    pass
+    N,T,D = x.shape
+    N, H = h0.shape
+    prev_c = np.zeros_like(h0)
+    prev_h = h0
+    cache = []
+    h = np.zeros((N,T,H))
+    for i in range(T):
+        prev_h, prev_c, cache_cur = lstm_step_forward(x[:,i,:], prev_h, prev_c, Wx, Wh, b)
+        h[:,i,:] = prev_h
+        cache.append(cache_cur)
+
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
@@ -382,16 +391,31 @@ def lstm_backward(dh, cache):
     - dWh: Gradient of hidden-to-hidden weight matrix of shape (H, 4H)
     - db: Gradient of biases, of shape (4H,)
     """
-    dx, dh0, dWx, dWh, db = None, None, None, None, None
     #############################################################################
     # TODO: Implement the backward pass for an LSTM over an entire timeseries.  #
     # You should use the lstm_step_backward function that you just defined.     #
     #############################################################################
-    pass
+    N,T,H = dh.shape
+    N, D = cache[0][0].shape
+    dnext_c = np.zeros((N, H))
+    dnext_h = np.zeros((N, H))
+    dWx = np.zeros((D, 4 * H))
+    dWh = np.zeros((H, 4 * H))
+    db = np.zeros((4 * H,))
+    dx = np.zeros((N, T, D))
+    for i in reversed(range(T)):
+        dnext_h_totol = dh[:,i,:] + dnext_h
+        cur_cache = cache[i]
+        dx_i, dnext_h, dnext_c, dWx_i, dWh_i, db_i = lstm_step_backward(dnext_h_totol, dnext_c,
+                                                                cur_cache)
+        dWx += dWx_i
+        dWh += dWh_i
+        db += db_i
+        dx[:,i,:] = dx_i
     ##############################################################################
     #                               END OF YOUR CODE                             #
     ##############################################################################
-
+    dh0 = dnext_h
     return dx, dh0, dWx, dWh, db
 
 
