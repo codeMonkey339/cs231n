@@ -45,7 +45,7 @@
           <file leaf-file-name="rnn_layers.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/cs231n/rnn_layers.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="3310">
+                <state relative-caret-position="8120">
                   <caret line="408" column="84" selection-start-line="408" selection-start-column="84" selection-end-line="408" selection-end-column="84" />
                   <folding>
                     <element signature="e#0#47#0" expanded="true" />
@@ -57,7 +57,7 @@
           <file leaf-file-name="rnn.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/cs231n/classifiers/rnn.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="532">
+                <state relative-caret-position="4780">
                   <caret line="239" column="80" selection-start-line="239" selection-start-column="80" selection-end-line="239" selection-end-column="80" />
                   <folding>
                     <element signature="e#0#26#0" expanded="true" />
@@ -69,8 +69,8 @@
           <file leaf-file-name="squeezenet.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/cs231n/classifiers/squeezenet.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="820">
-                  <caret line="110" lean-forward="true" selection-start-line="110" selection-end-line="110" />
+                <state relative-caret-position="640">
+                  <caret line="104" column="8" selection-start-line="104" selection-start-column="8" selection-end-line="104" selection-end-column="8" />
                 </state>
               </provider>
             </entry>
@@ -175,6 +175,32 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/cs231n/rnn_layers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8120">
+          <caret line="408" column="84" selection-start-line="408" selection-start-column="84" selection-end-line="408" selection-end-column="84" />
+          <folding>
+            <element signature="e#0#47#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cs231n/classifiers/rnn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cs231n/classifiers/squeezenet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2200">
+          <caret line="110" lean-forward="true" selection-start-line="110" selection-end-line="110" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/cs231n/rnn_layers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="6360">
@@ -291,7 +317,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cs231n/rnn_layers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3310">
+        <state relative-caret-position="8120">
           <caret line="408" column="84" selection-start-line="408" selection-start-column="84" selection-end-line="408" selection-end-column="84" />
           <folding>
             <element signature="e#0#47#0" expanded="true" />
@@ -301,7 +327,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cs231n/classifiers/rnn.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="532">
+        <state relative-caret-position="4780">
           <caret line="239" column="80" selection-start-line="239" selection-start-column="80" selection-end-line="239" selection-end-column="80" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
@@ -311,8 +337,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cs231n/classifiers/squeezenet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="820">
-          <caret line="110" lean-forward="true" selection-start-line="110" selection-end-line="110" />
+        <state relative-caret-position="640">
+          <caret line="104" column="8" selection-start-line="104" selection-start-column="8" selection-end-line="104" selection-end-column="8" />
         </state>
       </provider>
     </entry>
